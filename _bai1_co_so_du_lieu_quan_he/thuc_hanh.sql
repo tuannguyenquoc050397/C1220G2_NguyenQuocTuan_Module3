@@ -1,0 +1,1 @@
+SELECT * FROM thuc_hanh_over_database_view.student;
