@@ -24,6 +24,8 @@ select * from customer;
 
 select customer_name, phone, city, country from customer;
 
+update customer set customer_name = 'anh' where id=2;
+
 
 select * from customer where id=1;
 
@@ -31,9 +33,17 @@ select * from customer where customer_name='tuan3';
 
 select * from customer where city='Da Nang';
 
-select * from customer where customer_name like '%3%';
+select * from customer where customer_name like '%t%' and city = 'Da Nang';
 
 select * from customer where city in ('Da Nang', 'Quang Tri');
+
+select * from customer where city ='Da Nang' limit 2;
+
+select * from customer  limit 3;
+
+update customer set city ='A' where id =5;
+
+select MIN(city) from customer where country='Viet Nam'; 
 
 
 
