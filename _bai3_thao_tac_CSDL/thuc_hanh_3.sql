@@ -15,7 +15,8 @@ group by status;
 
 select orderNumber, sum(quantityOrdered * priceEach) as total
 from orderdetails
-group by orderNumber;
+group by orderNumber
+having orderNumber > 10107;
 
 select year(orderDate) as year, sum(quantityOrdered * priceEach) as total
 from orders 
