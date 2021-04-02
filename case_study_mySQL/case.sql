@@ -60,9 +60,9 @@ id_position int not null,
 id_department int not null,
 id_level int not null,
 
-foreign key (id_position) references positions(id),
-foreign key (id_department) references departments(id),
-foreign key (id_level) references levels(id)
+foreign key (id_position) references positions(id) ON DELETE CASCADE ,
+foreign key (id_department) references departments(id) ON DELETE CASCADE,
+foreign key (id_level) references levels(id) ON DELETE CASCADE
 );
 
 create table customers(
@@ -76,7 +76,7 @@ address varchar(50) not null,
 
 id_type_customer int not null,
 
-foreign key (id_type_customer) references type_customers(id)
+foreign key (id_type_customer) references type_customers(id) ON DELETE CASCADE
 
 );
 
@@ -92,8 +92,8 @@ states varchar(50),
 id_type_service int not null,
 id_type_rent int not null,
 
-foreign key (id_type_service) references type_services(id),
-foreign key (id_type_rent) references type_rents(id)
+foreign key (id_type_service) references type_services(id) ON DELETE CASCADE,
+foreign key (id_type_rent) references type_rents(id) ON DELETE CASCADE
 
 );
 
@@ -109,9 +109,9 @@ id_employee int not null,
 id_customer int not null,
 id_service int not null,
 
-foreign key (id_employee) references employees(id),
-foreign key (id_customer) references customers(id),
-foreign key (id_service) references services(id)
+foreign key (id_employee) references employees(id) ON DELETE CASCADE,
+foreign key (id_customer) references customers(id) ON DELETE CASCADE,
+foreign key (id_service) references services(id) ON DELETE CASCADE
 
 );
 
@@ -123,8 +123,8 @@ unit int default 1,
 id_agreement int not null,
 id_extra_service int not null,
 
-foreign key (id_agreement) references agreements(id),
-foreign key (id_extra_service) references extra_services(id)
+foreign key (id_agreement) references agreements(id) ON DELETE CASCADE,
+foreign key (id_extra_service) references extra_services(id) ON DELETE CASCADE
 
 );
 

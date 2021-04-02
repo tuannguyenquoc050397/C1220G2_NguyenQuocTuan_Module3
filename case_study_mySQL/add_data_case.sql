@@ -9,7 +9,6 @@ insert into positions
 		(2,'employee'),
 		(3,'trainee');
         
-delete from positions;
         
 insert into levels
 	value 
