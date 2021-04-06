@@ -50,8 +50,15 @@ FROM
 		where type_customers.`name`='diamond' 
         order by customers.numbers_ordered ASC;
 
+-- **** ----
+select  c.`name`, c.id_type_customer, count(a.id_customer)
+from customers c
+ left join agreements a on a.id_customer= c.id
+ where c.id_type_customer = 1 or a.id_customer is null
+ group by a.id_customer;
 
--- cau 5:
+
+-- cau 5: cui bap
 
 select customers.id, customers.`name`, type_customers.`name` as type_customer, agreements.id as id_agreement, services.`name` as name_services,agreements.date_start,
 agreements.date_end, (services.cost+extra_services.amount*extra_services.unit) as cost
@@ -63,11 +70,13 @@ agreements.date_end, (services.cost+extra_services.amount*extra_services.unit) a
             left join extra_services on agreement_details.id_extra_service=extra_services.id;
             
             
-insert into customers(id,`name`,date_of_birth,id_card,phone,email,address,id_type_customer)
-	value
-		(11,'customer11','2001-03-21',2000000011,'0907611348','customer11@mgail.com','Da Nang',1);
+            -- cau 5: v_total trong file view_case
+
+select * from v_total;
+            
+		
         
--- cau 6:
+-- cau 6: hien thi tat ca dich vu chua tung dc dat trong quy 1 nam 2000.... 
 
 update agreements
     set date_start = case 
@@ -86,17 +95,20 @@ update agreements
     when id =5 then '2021-04-03'
     end;
 
-       select *
-		from services s
-			inner join type_services ts on ts.id=s.id_type_service
-			left join agreements as a1 on a1.id_service=s.id
-		where (a1.date_start < '2019-01-01' or a1.date_start is null) 
-			and s.id not in (select a2.id_service from agreements a2  where a2.date_start > '2019-01-01')
-		group by s.id;
+select *
+	from services s 
+	inner join type_services ts on ts.id = s.id_type_service
+	left join agreements a on a.id_service=s.id
+	where date_start is null
+			or s.id not in (
+				select agreements.id_service 
+                from agreements 
+                where date_start < '2000-03-30' and date_start > '2000-01-01'
+                );
             
             
        
- -- cau 7:
+ -- cau 7: tim dich vu dc dat trong 2018 va chua tung duoc dat trong nam 2019
     
     select * 
     from services 
@@ -138,13 +150,13 @@ update agreements
 	select `name` from customers
 		group by `name`;
         
--- cau 9:
+-- cau 9:thuc hien thong ke so lan dat hang theo thang/ nam
 
 select month(a.date_start) as `month`, year(a.date_start) as `year`, count(*)
 from agreements a
 group by `month`,`year`;
 
--- cau 10
+-- cau 10: dem so lan dat dich vu di kem cua tung hop dong
 
 insert into agreement_details
 	value
@@ -152,10 +164,10 @@ insert into agreement_details
 		(7,1,1,3),
 		(8,1,1,1);
         
-select a.id, a.date_start, a.date_end, sum(a.down_payment), count(ad.id_agreement)
+select a.id, a.date_start, a.date_end, ifnull(count(ad.id_extra_service),0)
 from agreements a
-inner join agreement_details ad on ad.id_agreement=a.id
-group by ad.id_agreement;
+left join agreement_details ad on ad.id_agreement=a.id
+group by a.id;
 
 -- cau 11:
 
@@ -169,7 +181,7 @@ where tc.`name`='diamond' and (c.address='Da Nang' or c.address='Quang Tri') ;
 
 -- cau 12:
 
-select a.id, e.`name`, c.`name`, c.phone, s.id as id_service, s.`name` , count(*) , sum(a.down_payment) 
+select a.id, e.`name`, c.`name`, c.phone, s.id as id_service, s.`name` , count(*) , a.down_payment
  from services s
 inner join agreements a on a.id_service = s.id
 inner join customers c on a.id_customer = c.id
@@ -188,7 +200,9 @@ group by s.id;
 --     set date_end='2019-11-01'
 -- where id =3 ;
 
--- cau 13:
+-- cau 13: hien thi cac dich vu di kem co so lan su dung nhieu nhat
+
+		-- cach 1: dung view 
 
 create view max1 as
 select es.`name`,es.amount , count(ad.id_extra_service) as number_use_extra_service
@@ -202,10 +216,32 @@ select max(number_use_extra_service) from max1;
 select * from max1 
 where number_use_extra_service in ( select* from max2 );
 
--- cau 14
+		-- cach 2: dung sub query
 
+select es.id, es.`name`, count(es.id) 
+	from extra_services es
+	inner join agreement_details ad on ad.id_extra_service = es.id
+	group by es.id
+		having   count(es.id)  in (
+			select  max(tmp.dem)
+				from (
+					select es.id, es.`name`, count(es.id) as dem
+						from extra_services es
+						inner join agreement_details ad on ad.id_extra_service = es.id
+						group by es.id
+                        ) as tmp
+                );
 
+-- cau 14 : hien thi cac dich vu di kem co so lan su dung la 1
 
+		-- cach 1: 
+select es.id, es.`name`, count(es.id) 
+	from extra_services es
+	inner join agreement_details ad on ad.id_extra_service = es.id
+	group by es.id
+		having   count(es.id) = 1;
+
+		-- cach 2: view cu chuoi
 create view min1 as
 select a.id as id_agreement, s.`name` as name_services, es.`name` as name_extra_services, count(ad.id_extra_service) as number_use_extra_service
 from agreements a
@@ -216,6 +252,9 @@ group by ad.id_extra_service;
 
 select * from min1
 where number_use_extra_service in ( select number_use_extra_service from min1 where number_use_extra_service=1 );
+
+
+
 
 -- cau 15: tim nhan vien co toi da 3 hop dong trong nam 2019
 
@@ -277,15 +316,14 @@ where id in (
 -- DROP TRIGGER del_employee;
 
 
--- cau 17:
-
+-- cau 17: -- v_total trong file view_case
 update customers c
 set c.id_type_customer = 1
 where c.id_type_customer = 2 and c.id in(
-select id_customer from agreements 
-where year(date_start)=2019 
-group by id_customer
-having sum(total_payment) >1500
+select id_name from  v_total 
+where year(date_start)=2000 
+group by id_name
+having sum(total)>10000
 );
 
 -- cau 18: nen tao 1 column delete true/false true. chua xoa, false da xoa.
@@ -403,32 +441,18 @@ end
 delimiter //
 
 create trigger TR_2
-after update
+before update
 on agreements for each row
 begin
-if datediff(new.date_end, new.date_start) < 2 then
--- delete from agreements where id= new.id and datediff(new.date_end, new.date_start) < 2;
--- insert into agreements
--- 	value 
---     (old.id, old.date_start, old.date_end, old.down_payment, old.total_payment, old.id_employee, old.id_customer, old.id_service);
--- end if;
- delete from test where id=1;
+if datediff(new.date_end, old.date_start) < 2 then
+	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ngày kết thúc hợp đồng phải lớn hơn ngày làm hợp đồng ít nhất là 2 ngày';
  end if;
 end;
 // delimiter ;
 
+update agreements set date_end= '2000-03-23' where id=1;
+
 drop trigger TR_2;
-
-create table test(
-id int primary key auto_increment,
-`name` varchar(50) 
-);
-
-insert into test
-	value 
-		(1,'a');
-		
-
 
 -- delimiter //
 
@@ -447,7 +471,6 @@ insert into test
 -- cau 27:
 
 
-
  delimiter //
 create function func_1 ()
 returns int
@@ -456,12 +479,12 @@ begin
 	
 	set @a = (select count(id ) 
 				from services
-                where  id  in(
-					select a.id_service 
-						from  agreements a
-                        group by a.id_service
-                        having sum(a.total_payment)>10000)
-                        );
+					where  id  in(
+								select a.id_service 
+								from  agreements a
+								group by a.id_service
+								having sum(a.total_payment)>10000)
+								);
 	return @a;
 end;
 // delimiter ;
@@ -487,24 +510,37 @@ end;
 select func_2(1);
 
 -- cau 28:
-
+    insert into services
+	value
+		(10,'Room',50,5,20,1000,'yes',1,3),  
+        (11,'Room',50,5,20,1500,'yes',1,3), 
+        (12,'Room',50,5,20,2000,'yes',1,3);
+        
+        
+     insert into agreements
+	value    
+		(30,'2015-03-21','2000-04-21',200,3000,1,2,10),
+		(31,'2019-03-21','2000-03-22',200,1000,2,3,11),
+		(32,'2000-03-21','2000-03-22',100,500,3,1,12);
+        
 delimiter //
 create procedure SP_3 ()
 begin
 
-delete from agreements
-		where id in (
+delete from services
+		where id_type_service = 1 and id in (
         select tmp1.id 
         from
-			(select a.id 
-			from services s
-			inner join agreements a on a.id_service=s.id
-			left join agreement_details ad on ad.id_agreement=a.id
-			where (year(a.date_start)>=2015 and year(a.date_start)<2020) ) as tmp1
-        
+			(
+				select a.id_service  as id
+				from agreements a
+				where (year(a.date_start)>=2015 and year(a.date_start)<2020) 
+			) as tmp1
         );
 end;
 // delimiter ;
+
+call SP_3();
 
 
 
