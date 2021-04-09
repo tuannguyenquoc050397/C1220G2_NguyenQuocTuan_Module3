@@ -21,9 +21,13 @@ public class CalculatorServlet extends HttpServlet {
             float result = Calculator.calculator(firstOperand, secondOperand, operator);
 
             String a= firstOperand + " " + operator + " " + secondOperand + " = " + result;
-
+        try {
             request.setAttribute("a",a);
             request.getRequestDispatcher("index.jsp").forward(request,response);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
 
 
 
