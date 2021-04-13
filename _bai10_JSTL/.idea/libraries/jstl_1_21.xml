@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jstl-1.21">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/thuc_hanh/ung_dung_tu_dien_don_gian/out/artifacts/ung_dung_tu_dien_don_gian_war_exploded/WEB-INF/lib/jstl-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

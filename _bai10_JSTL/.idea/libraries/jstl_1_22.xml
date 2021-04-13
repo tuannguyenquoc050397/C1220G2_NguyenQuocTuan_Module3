@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jstl-1.22">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/bai_tap/ung_dung_calculator/out/artifacts/ung_dung_calculator_war_exploded/WEB-INF/lib/jstl-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
