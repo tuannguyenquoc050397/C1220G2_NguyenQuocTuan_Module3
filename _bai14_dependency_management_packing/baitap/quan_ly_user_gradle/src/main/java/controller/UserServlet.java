@@ -1,0 +1,245 @@
+package controller;
+
+import model.bean.User;
+import model.service.UserService;
+import model.service.impl.UserServiceImpl;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet(name = "UserServlet", urlPatterns = {"", "/user"})
+public class UserServlet extends HttpServlet {
+
+    private UserService userService = new UserServiceImpl();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String actionClient = request.getParameter("actionClient");
+
+        if (actionClient == null) {
+            actionClient = "";
+        }
+
+        switch (actionClient) {
+
+            case "editUser":
+                Integer id1 = Integer.parseInt(request.getParameter("id"));
+                String country1 = request.getParameter("country");
+                String name1 = request.getParameter("name");
+                String email1 = request.getParameter("email");
+
+                this.userService.editSP(id1,name1,email1,country1);
+
+                break;
+
+            case "create":
+                Integer idNew = Integer.parseInt(request.getParameter("id"));
+                String countryNew = request.getParameter("country");
+                String nameNew = request.getParameter("name");
+                String emailNew = request.getParameter("email");
+
+                User userNew = new User(idNew, nameNew, emailNew, countryNew);
+                String msgNew = null;
+                if (this.userService.save(userNew, actionClient)) {
+                    msgNew = "Update successfully!";
+
+                    loadList(request, response);
+                } else {
+                    msgNew = "Update failed!";
+
+                    request.setAttribute("msg", msgNew);
+                    request.setAttribute("userObj", userNew);
+                    request.getRequestDispatcher("create_user.jsp").forward(request, response);
+                }
+
+
+                break;
+            case "update":
+                Integer id = Integer.parseInt(request.getParameter("id"));
+                String country = request.getParameter("country");
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
+
+                User user = new User(id, name, email, country);
+
+                String msg = null;
+                if (this.userService.save(user, actionClient)) {
+                    msg = "Update successfully!";
+                    loadList(request, response);
+                } else {
+                    msg = "Update failed!";
+
+                    request.setAttribute("msg", msg);
+                    request.setAttribute("userObj", user);
+                    request.getRequestDispatcher("update_user.jsp").forward(request, response);
+                }
+        }
+
+
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String actionClient = request.getParameter("actionClient");
+
+        if (actionClient == null) {
+            actionClient = "";
+        }
+
+        switch (actionClient) {
+
+
+            case "permision":
+
+                addUserPermision(request, response);
+
+                break;
+
+            case "getById":
+
+                List<User> userList = new ArrayList<>();
+
+                userList.add(this.userService.getById(Integer.parseInt(request.getParameter("id"))));
+
+                request.setAttribute("userListServlet", userList);
+                request.getRequestDispatcher("list_user.jsp").forward(request, response);
+
+
+                break;
+
+            case "findByCountry":
+
+                findByCountry(request, response);
+
+                break;
+
+            case "test-use-tran":
+
+                testUseTran(request, response);
+                break;
+
+            case "test-without-tran":
+
+                testWithoutTran(request, response);
+                break;
+            case "sort":
+
+                sortList(request,response);
+
+                break;
+
+            case "back":
+                loadList(request, response);
+                break;
+
+            case "create":
+                showNewForm(request, response);
+                break;
+
+            case "update":
+                Integer id = Integer.parseInt(request.getParameter("id"));
+                User studentFromService = this.userService.findById(id);
+                request.setAttribute("userObj", studentFromService);
+                request.getRequestDispatcher("update_user.jsp").forward(request, response);
+                break;
+
+            case "delete":
+                deleteUser(request, response);
+                break;
+
+            case "getAll":
+                request.setAttribute("userListServlet", this.userService.getAllSP());
+                request.getRequestDispatcher("list_user.jsp").forward(request, response);
+                break;
+
+            case "editUser":
+                Integer id1 = Integer.parseInt(request.getParameter("id"));
+                User studentFromService1 = this.userService.findById(id1);
+                request.setAttribute("userObj", studentFromService1);
+                request.getRequestDispatcher("edit_user.jsp").forward(request, response);
+                break;
+
+            default:
+                loadList(request, response);
+        }
+
+
+    }
+
+    private void testUseTran(HttpServletRequest request, HttpServletResponse response) {
+
+        this.userService.insertUpdateUseTransaction();
+    }
+
+    private void testWithoutTran(HttpServletRequest request, HttpServletResponse response) {
+
+    this.userService.insertUpdateWithoutTransaction();
+
+    }
+
+    private void addUserPermision(HttpServletRequest request, HttpServletResponse response) {
+        User user = new User(19,"kien", "kienhoang@gmail.com", "vn");
+
+        int[] permision = {1, 2, 4};
+
+        this.userService.addUserTransaction(user,permision);
+    }
+
+    private void findByCountry(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        request.setAttribute("userListServlet", ((UserServiceImpl) userService).findByCountry("Viet Nam" +
+                "") );
+        request.getRequestDispatcher("list_user.jsp").forward(request, response);
+
+    }
+
+    private void sortList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+
+        request.setAttribute("userListServlet", ((UserServiceImpl) userService).findAllSort() );
+        request.getRequestDispatcher("list_user.jsp").forward(request, response);
+
+    }
+
+    private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.parseInt(request.getParameter("id"));
+        User user = new User();
+        user.setId(id);
+        String msg = null;
+        if (this.userService.save(user, "delete")) {
+            msg = "delete successfully";
+
+        } else {
+
+            msg = "delete fail !!";
+
+        }
+
+
+        request.setAttribute("msg", msg);
+        request.getRequestDispatcher("list_user.jsp").forward(request, response);
+
+
+    }
+
+    private void showNewForm(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            request.getRequestDispatcher("create_user.jsp").forward(request, response);
+        } catch (ServletException | IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void loadList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        request.setAttribute("userListServlet", this.userService.findAll());
+        request.getRequestDispatcher("list_user.jsp").forward(request, response);
+    }
+}
