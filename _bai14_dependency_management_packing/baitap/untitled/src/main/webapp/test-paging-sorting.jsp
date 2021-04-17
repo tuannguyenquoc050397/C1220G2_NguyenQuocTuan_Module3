@@ -4,8 +4,8 @@
 <head>
     <title>Title</title>
 <%--    DataTables 1.10.21 support bootstrap <= 4.1.3--%>
-    <link rel="stylesheet" href="bootstrap413/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="datatables/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="/bootstrap413/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/datatables/css/dataTables.bootstrap4.min.css" />
 </head>
 <body>
     <div class="container">
@@ -35,9 +35,9 @@
         </div>
     </div>
 
-    <script src="jquery/jquery-3.5.1.min.js"></script>
-    <script src="datatables/js/jquery.dataTables.min.js"></script>
-    <script src="datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#tableStudent').dataTable( {
